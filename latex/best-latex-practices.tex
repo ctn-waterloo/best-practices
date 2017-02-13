@@ -1,0 +1,108 @@
+\documentclass{beamer}
+
+\usepackage{nag}
+
+\usecolortheme{beaver}
+%\defaultfontfeatures{Mapping=tex-text}
+%\setsansfont{Helvetica Neue}
+
+\useinnertheme{rounded}
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamercolor{block title}{bg=frametitle.bg}
+\setbeamercolor{block body}{bg=frametitle.bg}
+\setbeamercolor{block title alerted}{bg=frametitle.bg}
+\setbeamercolor{block body alerted}{bg=frametitle.bg}
+
+\title{Best \LaTeX\ practices}
+\author{Jan Gosmann}
+\date{February 17, 2017}
+
+\begin{document}
+\maketitle
+
+\begin{frame}
+    \frametitle{Why is this hard?}
+    \begin{itemize}
+        \item One of the oldest pieces of software you are using.
+        \item \TeX\ was released 1978, feature complete since 1989.
+        \item \LaTeX\ was released 1985.
+        \item Best practices change over time.
+        \item Many recommendations on the Internet are outdated.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why and why not to use \LaTeX?}
+    \begin{block}{Pro}
+        \begin{itemize}
+            \item Text based format good for version control and collaboration.
+            \item Beautiful typography.
+            \item Semantic markup (focus on content).
+        \end{itemize}
+    \end{block}
+    \begin{block}{Contra}
+        \begin{itemize}
+            \item Horrible language.
+            \item Compile errors hard to track down.
+            \item Sometimes hard to get exactly what you want.
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{What is \dots?}
+    \begin{itemize}
+        \item \TeX\@: Original ``low-level'' typesetting system by D.~Knuth.
+        \item \LaTeX\@: Abstraction level build on \TeX\ to isolate the user from typesetting decisions.
+        \item ConTeXt\@: In some ways similar to \LaTeX, but provides easy access to advanced typographic control. Uses ``unified system'' instead of individual packages.
+    \end{itemize}
+    Probably best to stick to \LaTeX\ because of abstraction level and templates provided by publishers.
+\end{frame}
+
+\begin{frame}
+    \frametitle{What is \dots?}
+    \begin{itemize}
+        \item \texttt{latex}: Original \LaTeX\ compiler to DVI\@.
+        \item \texttt{pdflatex}: Compiles to PDF and supports special PDF features.
+        \item \texttt{xelatex}: Adds support for PDF, UTF-8, and system fonts.
+        \item \texttt{lualatex}: Adds support for PDF, UTF-8, system fonts, and Lua scripting.
+    \end{itemize}
+    Recommendations: Use \texttt{lualatex} if you can (first stable version was released last year), \texttt{xelatex} is also a good choice. Sometimes you have to resort to \texttt{pdflatex} (e.g., for the CogSci template). Use \texttt{latex} only if you absolutely require specific packages (e.g., pstricks) not supported by the other compilers.
+\end{frame}
+    
+\begin{frame}
+    \frametitle{How to install \LaTeX?}
+    \begin{itemize}
+        \item Via the package manager of your Linux distribution.
+        \item I prefer TeX Live available for all major OS\@. Yearly releases, gives you \emph{all} the packages in the most recent versions.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Useful tools}
+    \begin{itemize}
+        \item \texttt{texdoc}: Quickest way to pull up package documentations.
+        \item \texttt{chktex}: Static checker, warns you about things easy to overlook. I recommend using it as an automatic checker in your favourite editor (e.g., with the Syntastic plugin in Vim).
+        \item \texttt{latexmk}: Best way to compile \LaTeX.
+    \end{itemize}
+    \begin{beamerboxesrounded}{My .latexmkrc}
+        \begin{verbatim}
+$pdflatex = "lualatex -synctex=1 %O %S";
+$pdf_mode = 1;
+$postscript_mode = $dvi_mode = 0;
+        \end{verbatim}
+    \end{beamerboxesrounded}
+\end{frame}
+
+
+% inverse and forward search
+% one sentence per line
+% collab
+
+% standard packages: graphicx, beamer, tikz, nag, siunitx
+% komascript
+
+\end{document}
