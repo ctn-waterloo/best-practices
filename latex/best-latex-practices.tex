@@ -1,16 +1,15 @@
-\documentclass[aspectratio=1610]{beamer}
+\documentclass[aspectratio=1610,hyperref={colorlinks,linkcolor=}]{beamer}
 
 \usepackage{fontspec}
 \usepackage{microtype}
 
+\usepackage{booktabs}
 \usepackage{color}
 \usepackage{fancyvrb}
 \usepackage[l2tabu,orthodox]{nag}
 \usepackage{upquote}
 
 \usecolortheme{beaver}
-%\defaultfontfeatures{Mapping=tex-text}
-%\setsansfont{Helvetica Neue}
 
 \usefonttheme[onlymath]{serif}
 \useinnertheme{rounded}
@@ -18,6 +17,13 @@
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[frame number]
 \setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamertemplate{section in toc}[square]
+\setbeamertemplate{section page}
+{
+    \begin{center}
+        \usebeamerfont{section title}\usebeamercolor[fg]{frametitle}\Huge\insertsection\par
+    \end{center}
+}
 \setbeamercolor{block title}{bg=frametitle.bg}
 \setbeamercolor{block body}{bg=frametitle.bg}
 \setbeamercolor{block title alerted}{bg=frametitle.bg}
@@ -26,6 +32,12 @@
 \title{Best \LaTeX\ practices}
 \author{Jan Gosmann}
 \date{February 17, 2017}
+
+\AtBeginSection{
+    \begin{frame}
+        \sectionpage{}
+    \end{frame}
+}
 
 \begin{document}
 \maketitle
@@ -41,6 +53,13 @@
     \end{itemize}
 \end{frame}
 
+
+\begin{frame}
+    \frametitle{Outline}
+    \tableofcontents
+\end{frame}
+
+\section{The \TeX\ environment}
 \begin{frame}
     \frametitle{Why and why not to use \LaTeX?}
     \begin{block}{Pro}
@@ -60,9 +79,9 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{What is \dots?}
+    \frametitle{\TeX\ flavours}
     \begin{itemize}
-        \item \TeX\@: Original ``low-level'' typesetting system by D.~Knuth.
+        \item \TeX\@: Original ``low-level'' typesetting system by Donald Knuth.
         \item \LaTeX\@: Abstraction level build on \TeX\ to isolate the user from typesetting decisions.
         \item ConTeXt\@: In some ways similar to \LaTeX, but provides easy access to advanced typographic control. Uses ``unified system'' instead of individual packages.
     \end{itemize}
@@ -70,21 +89,21 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{What is \dots?}
+    \frametitle{\LaTeX\ compilers}
     \begin{itemize}
         \item \texttt{latex}: Used to be the original \LaTeX\ compiler to DVI\@, but now defaults to \texttt{pdflatex}.
         \item \texttt{pdflatex}: Compiles to PDF and supports special PDF features.
         \item \texttt{xelatex}: Adds support for PDF, UTF-8, and system fonts.
         \item \texttt{lualatex}: Adds support for PDF, UTF-8, system fonts, and Lua scripting.
     \end{itemize}
-    Recommendations: Use \texttt{lualatex} if you can (first stable version was released last year), \texttt{xelatex} is also a good choice. Sometimes you have to resort to \texttt{pdflatex} (e.g., for the CogSci template). Use \texttt{latex} only if you absolutely require specific packages (e.g., pstricks) not supported by the other compilers.
+    Recommendations: Use \texttt{lualatex} if you can (first stable version was released last year), \texttt{xelatex} is also a good choice. Sometimes you have to resort to \texttt{pdflatex} (e.g., for the CogSci template or specific \texttt{microtype} features).  Use \texttt{latex} only if you absolutely require specific packages (e.g., pstricks) not supported by the other compilers.
 \end{frame}
-    
+
 \begin{frame}
     \frametitle{How to install \LaTeX?}
     \begin{itemize}
         \item Via the package manager of your Linux distribution.
-        \item I prefer TeX Live available for all major OS\@. Yearly releases, gives you \emph{all} the packages in the most recent versions.
+        \item I prefer \href{https://www.tug.org/texlive/}{TeX Live} available for all major OS\@.  Yearly releases, gives you \emph{all} the packages in the most recent versions.
     \end{itemize}
 \end{frame}
 
@@ -97,13 +116,31 @@
     \end{itemize}
     \begin{beamerboxesrounded}{My .latexmkrc}  % chktex 26
         \begin{verbatim}
-$pdflatex = "lualatex -synctex=1 %O %S";
-$pdf_mode = 1;
-$postscript_mode = $dvi_mode = 0;
+$lualatex = 'lualatex -synctex=1 %O %S';
+$pdflatex = 'pdflatex -synctex=1 %O %S';
+$xelatex = 'xelatex -synctex=1 %O %S';
+$pdf_mode = 4;  # 1 for pdflatex, 4 for lualatex, 5 for xelatex
         \end{verbatim}
     \end{beamerboxesrounded}
 \end{frame}
 
+\begin{frame}[fragile]
+    \frametitle{Preamble}
+    \begin{beamerboxesrounded}{pdflatex}
+        \begin{verbatim}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+        \end{verbatim}
+    \end{beamerboxesrounded}
+    \begin{beamerboxesrounded}{xelatex and lualatex}
+        \begin{verbatim}
+\usepackage{fontspec}
+        \end{verbatim}
+    \end{beamerboxesrounded}
+    Also, consider loading the \texttt{microtype} package, but you might want to disable protrusion for the table of contents (see section 9 of the manual).
+\end{frame}
+
+\section{Markup}
 \begin{frame}[fragile]
     \frametitle{Semantic markup}
     \begin{itemize}
@@ -157,21 +194,22 @@ The input is given by
     \end{itemize}
 \end{frame}
 
+\section{Special characters}
+\begin{frame}[fragile]
+    \frametitle{Spaces}
+    \begin{itemize}
+        \item Use non-breaking space \verb+~+ where you would never want a linebreak. For example, \verb+Dr.~Who+, \verb+Figure~\ref{fig:a}+, or \verb+(a)~this, or (b)~that+.
+        \item Use either non-breaking space \verb+~+ or explicit normal length space \verb*+\ + after periods that do not end a sentence because the intersentence space in English can be larger than the interword space.
+        \item Use intersentence spacing when sentence ends in all caps word. For example, \verb+Independent accumulator is abbreviated with IA\@.+ (Chktex warns about this.)
+    \end{itemize}
+\end{frame}
+
 \begin{frame}[fragile]
     \frametitle{Quotes}
     \begin{itemize}
         \item Use \verb+``text''+ to produce actual quotes: ``text''.
         \item \textbf{Not} \verb+"text"+ which gives "text". % chktex 18
         \item Same for single quotes.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]
-    \frametitle{Spaces}
-    \begin{itemize}
-        \item Use non-breaking space \verb+~+ where you would never want a linebreak. For example, \verb+Dr.~Who+, \verb+Figure~\ref{fig:a}+, or \verb+(a)~this, or (b)~that+.
-        \item Use either non-breaking space \verb+~+ or explicit normal length space \verb*+\ + after periods because the intersentence space in English can be larger than the interword space.
-        \item Use intersentence spacing when sentence ends in all caps word. For example, \verb+Independent accumulator is abbreviated with IA\@.+ (Chktex warns about this.)
     \end{itemize}
 \end{frame}
 
@@ -192,16 +230,7 @@ The input is given by
     \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
-    \frametitle{Tables}
-    \begin{itemize}
-        \item Never, ever use vertical rules.
-        \item Never use double rules.
-        \item Caption goes above table, not below (in contrast to figures).
-        \item Use \verb+booktabs+ package and read its documentation.
-    \end{itemize}
-\end{frame}
-
+\section{Package recommendations}
 \begin{frame}[fragile]
     \frametitle{References}
     \begin{itemize}
@@ -211,6 +240,28 @@ The input is given by
         \item Avoid parenthesis in parenthesis (might require some manual piecing together with different lower level citation commands).
         \item Using reference management software can be a good idea. (I use Zotero with the ``Better Bib(La)TeX'' plugin, others are Papers for macOS and Mendeley.)  % chktex 36
     \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Tables}
+    \begin{itemize}
+        \item Never, ever use vertical rules.
+        \item Never use double rules.
+        \item Caption goes above table, not below (in contrast to figures).
+        \item Align numeric columns on period.
+        \item Use \verb+booktabs+ package and read its documentation.
+    \end{itemize}
+    \begin{center}
+        \begin{tabular}{@{}llr@{}} \toprule
+            \multicolumn{2}{c}{Item} \\ \cmidrule(r){1-2}
+            Animal & Description & Price (\$)\\ \midrule
+            Gnat & per gram & 13.65 \\
+            & each & 0.01 \\
+            Gnu & stuffed & 92.50 \\
+            Emu & stuffed & 33.33 \\
+            Armadillo & frozen & 8.99 \\ \bottomrule
+        \end{tabular}
+    \end{center}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -225,37 +276,33 @@ The input is given by
     \end{itemize}
 \end{frame}
 
+\section{Grab bag}
 \begin{frame}
     \frametitle{Collaboration}
     \begin{itemize}
-        \item overleaf.com
+        \item \url{overleaf.com}
             \begin{itemize}
                 \item Pros: web interface, Git access
                 \item Cons: version tracking is lacking, only \LaTeX\ inline comments
             \end{itemize}
-        \item github.com
+        \item \url{github.com}
             \begin{itemize}
                 \item Pros: PRs allow discussion threads in code, good version tracking
                 \item Cons: more complicated to use?
             \end{itemize}
+        \item \url{sharelatex.com} (have not tried it yet)
         \item Use one sentence per line. (You might want to set your editor to soft wrap mode.)
     \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
-    \frametitle{Preamble}
-    \begin{beamerboxesrounded}{pdflatex}
-        \begin{verbatim}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-        \end{verbatim}
-    \end{beamerboxesrounded}
-    \begin{beamerboxesrounded}{xelatex and lualatex}
-        \begin{verbatim}
-\usepackage{fontspec}
-        \end{verbatim}
-    \end{beamerboxesrounded}
-    Also, consider loading the \texttt{microtype} package, but you might want to disable protrusion for the table of contents (see section 9 of the manual).
+\begin{frame}
+    \frametitle{Forward and inverse search}
+    \begin{itemize}
+        \item Jump from tex-file to corresponding spot in the PDF (forward).
+        \item Jump from the PDF to the corresponding spot in the tex-file (backward).
+        \item Requires to compile tex with \texttt{-synctex=1}.
+        \item Further setup depends on editor and PDF viewer.
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -263,6 +310,7 @@ The input is given by
     \begin{itemize}
         \item \url{https://www.olivierverdier.com/posts/2013/07/15/modern-latex/}
         \item \url{http://practicaltypography.com/}
+        \item \texttt{texdoc l2tabuen}
     \end{itemize}
 \end{frame}
 
